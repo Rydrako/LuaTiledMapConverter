@@ -16,7 +16,8 @@ file_field = uiUtil.file_input("  *File: ", "30", function (_txt)
 		uiUtil.file_dialog(iup.filedlg{
 				dialogtype = "OPEN",
 				filter = "*.lua;*.json",
-				filterinfo = "Lua & Tiled Files"
+				filterinfo = "Lua & Tiled Files",
+				multiplefiles = "Yes"
 			},
 			_txt)
 	end)
@@ -100,7 +101,7 @@ function abt_btn:action ()
 	abt_dlg:hide()
 end
 
-
+package_tgl = iup.toggle{title = "Use package names as directories", value="ON"}
 
 tileset_tgl = iup.toggle{title = "Use Output Path", 
 	action=(function (self)
@@ -118,28 +119,149 @@ sub1_menu = iup.submenu{file_menu, title = "&File"}
 sub2_menu = iup.submenu{help_menu, title = "&Help"}
 menu = iup.menu{sub1_menu, sub2_menu}
 
--- Starts conversion process for exporting to tiled format
-function export_tiled ()
+--- Starts the process for converting the file(s) and 
+--- returns a table with title and message for an iup pop up
+--
+-- @param 	function 	process 				the conversion method to execute, requires the params (string, ..), 
+--																		see conversionTools methods for details
+
+function export_files (process)
 
 	if util.is_nil_or_empty(file_field.txt.value) then
-		iup.Message("Error", "Please enter a valid input file")
+		return {title="Error", msg="Please enter a valid input file"}
 	elseif util.is_nil_or_empty(export_field.txt.value) then
-		iup.Message("Error", "Please enter a valid output directory or file name")
-	elseif conversionTool.toTiled(file_field.txt.value, export_field.txt.value, tileset_tgl.value=="OFF" and img_field.txt.value or nil, margin.value, spacing.value) then
-		iup.Message("Success", "Successfully converted " .. export_field.txt.value)
+		return {title="Error", msg="Please enter a valid output directory or file name"}
 	end
+
+	local files = util.split(file_field.txt.value, "|")
+
+	if #files > 1 then
+
+		local dir = files[1]
+
+		for i=2,#files-1 do
+
+			if not process(dir .. "\\" .. files[i]) then
+
+				return {title="Error", msg="Error occured converting " .. files[i]}
+			end
+		end
+
+		return {title="Success", msg="Successfully converted " .. #files-1 .. " files!"}
+	else
+
+		if not process(file_field.txt.value) then
+
+			return {title="Error", msg="Error occured converting " .. util.get_filename(file_field.txt.value)}
+		else
+
+			return {title="Success", msg="Successfully converted " .. util.get_filename(file_field.txt.value)}
+		end
+	end
+
+	
+end
+
+function export_tiled_old ()
+
+	if util.is_nil_or_empty(file_field.txt.value) then
+		return {title="Error", msg="Please enter a valid input file"}
+
+	elseif util.is_nil_or_empty(export_field.txt.value) then
+		return {title="Error", msg="Please enter a valid output directory or file name"}
+
+	end
+
+	local files = util.split(file_field.txt.value, "|")
+
+	if #files > 1 then
+
+		local dir = files[1]
+
+		for i=2,#files-1 do
+
+			if not conversionTool.toTiled(dir .. "\\" .. files[i],
+															export_field.txt.value, 
+															tileset_tgl.value=="OFF" and img_field.txt.value or nil, 
+															margin.value, spacing.value, 
+															package_tgl.value=="ON") then
+
+				return {title="Error", msg="Error occured converting " .. files[i]}
+			end
+		end
+
+		return {title="Success", msg="Successfully converted " .. #files-1 .. " files!"}
+	else
+
+		if not conversionTool.toTiled(file_field.txt.value, 
+															export_field.txt.value, 
+															tileset_tgl.value=="OFF" and img_field.txt.value or nil, 
+															margin.value, spacing.value, 
+															package_tgl.value=="ON") then
+
+			return {title="Error", msg="Error occured converting " .. util.get_filename(file_field.txt.value)}
+		else
+
+			return {title="Success", msg="Successfully converted " .. util.get_filename(file_field.txt.value)}
+		end
+	end
+
+	
 end
 
 -- Starts conversion process for exporting to lua format
-function export_lua ()
+function export_lua_old ()
 
 	if util.is_nil_or_empty(file_field.txt.value) then
-		iup.Message("Error", "Please enter a valid input file")
+		return {title="Error", msg="Please enter a valid input file"}
+
 	elseif util.is_nil_or_empty(export_field.txt.value) then
-		iup.Message("Error", "Please enter a valid export directory or file name")
-	elseif conversionTool.toLua(file_field.txt.value, export_field.txt.value, tileset_field.txt.value) then
-		iup.Message("Success", "Successfully converted " .. export_field.txt.value)
+		return {title="Error", msg="Please enter a valid output directory or file name"}
+		
 	end
+
+	local files = util.split(file_field.txt.value, "|")
+
+	if #files > 1 then
+
+		local dir = files[1]
+
+		for i=2,#files-1 do
+
+			if not conversionTool.toLua(dir .. "\\" .. files[i], export_field.txt.value, tileset_field.txt.value, package_tgl.value=="ON")then
+				
+				return {title="Error", "Error occured converting " .. files[i]}
+			end
+		end
+		
+		return {title="Success", "Successfully converted " .. #files-1 .. " files!"}
+	else
+
+		if conversionTool.toLua(file_field.txt.value, export_field.txt.value, 
+															tileset_field.txt.value, package_tgl.value=="ON") then
+
+			return {title="Error", "Error occured converting " .. util.get_filename(file_field.txt.value)}
+		else
+			return {title="Success", "Successfully converted " .. util.get_filename(file_field.txt.value)}
+		end
+	end
+end
+
+function export_tiled (file)
+
+	return conversionTool.toTiled(file, 
+												export_field.txt.value, 
+												tileset_tgl.value=="OFF" and img_field.txt.value or nil, 
+												margin.value, spacing.value, 
+												package_tgl.value=="ON")
+end
+
+function export_lua (file)
+
+	return conversionTool.toLua(file, 
+											export_field.txt.value, 
+											tileset_field.txt.value, 
+											package_tgl.value=="ON")
 end
 
 -- Main Window layout
@@ -149,7 +271,15 @@ vbox = iup.vbox{
 	file_field, --Input section
 	iup.label{title="         Output", fgcolor="100 100 100"},
 	iup.label{separator="HORIZONTAL"},
-	export_field, --Export section
+	iup.vbox{  --Export section
+
+				export_field,
+				iup.hbox{
+					package_tgl,
+					gap = "10",
+					margin = "57x10"
+				}
+		},
 	iup.label{title="         Tileset Settings", fgcolor="100 100 100"},
 	iup.label{separator="HORIZONTAL"},
 	iup.vbox{ --Tileset Settings section
@@ -183,8 +313,20 @@ vbox = iup.vbox{
 	iup.label{separator="HORIZONTAL"},
 	iup.hbox{ --Convert section
 
-		iup.button{title="Export to Lua (.lua)", action=export_lua},
-		iup.button{title="Export to Tiled (.json)", action=export_tiled},
+		iup.button{title="Export to Lua (.lua)", 
+			action=(function ()
+				local result = export_files(export_lua)
+
+				iup.Message(result["title"], result["msg"])
+			end)
+		},
+		iup.button{title="Export to Tiled (.json)", 
+			action=(function ()
+				local result = export_files(export_tiled)
+
+				iup.Message(result["title"], result["msg"])
+			end)
+		},
 		alignment="acenter",
 		gap = "10",
 		margin = "50x10"

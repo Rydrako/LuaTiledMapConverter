@@ -63,14 +63,17 @@ end
 function util.get_filename(path)   
 
     local dirs = util.split(path, "\\")
-    local f_name = util.split(dirs[#dirs], ".")
-    return f_name[1]
+    return dirs[#dirs]:match("(.+)%..+")
 end
 
 --- Escapes pattern characters in the given string
 
 function util.escape_pattern(text)
     return text:gsub("([^%w])", "%%%1")
+end
+
+function util.ends_with(str, end_str)
+    return str:sub(-string.len(end_str)) == end_str
 end
 
 

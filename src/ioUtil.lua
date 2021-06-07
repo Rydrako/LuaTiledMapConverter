@@ -46,7 +46,7 @@ function ioUtil.export_file (file, file_data, default_name, file_extension)
 	local is_json = string.match(file, "json")
 	local is_lua = string.match(file, ".lua")
 
-	if not string.match(file, "json") and not string.match(file, ".lua") then
+	if not util.ends_with(file, file_extension) then
 
 		if util.is_dir(file) then 
 			file = file .. "\\" .. default_name .. file_extension
@@ -57,6 +57,8 @@ function ioUtil.export_file (file, file_data, default_name, file_extension)
 	end
 
 	if string.match(file, "json") then 
+
+		print(file)
 
 		local f = io.open(file, "w")
 

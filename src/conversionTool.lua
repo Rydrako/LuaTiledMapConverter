@@ -22,23 +22,31 @@ end
 
 --- Creates a json file for Tiled from the given lua file, returns true/false if the operation was successful or not
 --
--- @param 	string 	file 			path of the input lua file
--- @param 	string 	exportPath		path to create the json file
--- @param	string 	imgpath			path where tilesets are located; if empty, exportPath is used
--- @param 	number 	margin 			margin of tilesets
--- @param 	number 	spacing 		spacing of tilesets
+-- @param 	string 	file 				path of the input lua file
+-- @param 	string 	exportPath			path to create the json file
+-- @param	string 	imgpath				path where tilesets are located; if empty, exportPath is used
+-- @param 	number 	margin 				margin of tilesets
+-- @param 	number 	spacing 			spacing of tilesets
+-- @param 	boolean usePackageAsPath 	if true, the file name is extended onto exportPath, peroids serving as slashes
+--										(e. g. a file named maps.world_1.level_1 will export to <export_path>/maps/world_1/level_1)
 
-function conversionTool.toTiled (file, exportPath, imgPath, margin, spacing)
+function conversionTool.toTiled (file, exportPath, imgPath, margin, spacing, usePackageAsPath)
 
 	data = ioUtil.load_file(file)
 
+	local file_name = util.get_filename(file)
+
+	print("Starting LUA conversion for the file: " .. file_name .. "\n\n")
+
 	if util.is_nil_or_empty(data) then 
 
-		print(" loading lua data failed ")
+		print("Error occured: Could not load data from file! \n\n")
 		return false
 	end
 
-	print("converting " .. file .. "to json...")
+	if usePackageAsPath then
+		exportPath = exportPath .. "\\" .. string.gsub(util.get_filename(file), "%.", "\\")
+	end
 
 	if util.is_nil_or_empty(imgPath) then
 		imgPath = util.is_dir(exportPath) and exportPath or util.get_parent_path(exportPath)
@@ -97,15 +105,15 @@ function conversionTool.toTiled (file, exportPath, imgPath, margin, spacing)
 		end)
 
 
-	if not ioUtil.export_file(exportPath, data, util.get_filename(file), ".json") then 
+	if not ioUtil.export_file(exportPath, data, file_name, ".json") then 
 
-		print(" json export failed ")
+		print("Error occured: Could not export JSON file! \n\n")
 		return false 
 	end
+	
+	if not ioUtil.export_file(exportPath, data["tilesets"], file_name, "_tilesets.json") then 
 
-	if not ioUtil.export_file(exportPath, data["tilesets"], util.get_filename(file) .. "_tilesets", ".json") then 
-
-		print(" tileset export failed ")
+		print("Error occured: Could not export JSON tileset! \n\n")
 		return false 
 	end
 
@@ -115,27 +123,37 @@ end
 
 --- Creates a lua file for Tiled from the given json file, returns true/false if the operation was successful or not
 --
--- @param 	string 	file 			path of the input json file
--- @param 	string 	exportPath		path to create the lua file
--- @param	string 	imgpath			path of tilesets
+-- @param 	string 	file 				path of the input json file
+-- @param 	string 	exportPath			path to create the lua file
+-- @param	string 	imgpath				path of tilesets
+-- @param 	boolean usePackageAsPath 	if true, the file name is extended onto exportPath, peroids serving as slashes 
+--										(e. g. a file named maps.world_1.level_1 will export to <export_path>/maps/world_1/level_1)
 
-function conversionTool.toLua (file, exportPath, imgPath)
+function conversionTool.toLua (file, exportPath, imgPath, usePackageAsPath)
 
 	data = ioUtil.load_file(file)
+
+	local file_name = util.get_filename(file)
+
+	print("Starting LUA conversion for the file: " .. file_name .. "\n\n")
 
 	local tilesetFile = util.get_parent_path(file) .. "\\" .. util.get_filename(file) .. "_tilesets.json"
 	data["tilesets"] = ioUtil.load_file(tilesetFile)
 
 	if util.is_nil_or_empty(data) then 
 
-		print("loading json data failed")
+		print("Error occured: Could not load data from file! \n\n")
 		return false
 	end
 
-	print("converting " .. file .. " to lua...")
+
+
+	if usePackageAsPath then
+		exportPath = exportPath .. "\\" .. string.gsub(util.get_filename(file), "%.", "\\")
+	end
 
 	--add "\" to imgPath if it does not end with one
-	if imgPath:sub(-string.len("\\")) ~= "\\" then 
+	if not util.ends_with(imgPath, "\\") then 
 		imgPath = imgPath .. "\\"
 	end
 
@@ -200,9 +218,9 @@ function conversionTool.toLua (file, exportPath, imgPath)
 
 		end)
 
-	if not ioUtil.export_file(exportPath, data, util.get_filename(file), ".lua") then 
+	if not ioUtil.export_file(exportPath, data, file_name, ".lua") then 
 
-		print(" lua export failed")
+		print("Error occured: Could not export LUA file! \n\n")
 		return false
 	end
 
