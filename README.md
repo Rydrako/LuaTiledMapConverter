@@ -74,19 +74,23 @@ Tiled is a popular, free, open-source Map Editor used in many games, while it su
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-<a href="https://i.imgur.com/qipf0io.png">
-    <img src="https://i.imgur.com/qipf0io.png" alt="UI Layout of the Program">
+<a href="https://i.imgur.com/Ehif3lT.png">
+    <img src="https://i.imgur.com/Ehif3lT.png" alt="UI Layout of the Program">
 </a>
 
 *Layout of the UI. You may drag & drop files into the text fields or use the Browse buttons to select files and directories.*
 
 #### Input
 
-The lua or json file you want to convert
+The lua or json file(s) you want to convert. Use the browse button to select multiple files.
 
 #### Output
 
 The output path, can either be a file name or a directory. Choosing a directory is recommended
+
+If Use package names as directories is checked then packages in the file's name are added to export path. 
+
+For example, if you have a file called ```maps.world_1.level_1.lua``` then it will be exported to the directory: ```<export_path>/maps/world_1/level_1.json```
 
 #### Tileset Settings
 
