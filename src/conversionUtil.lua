@@ -36,7 +36,7 @@ function conversionUtil.iterate_sets_with_key(set, key, process)
 	if set[key] ~= nil then 
 
 		for k, v in pairs(set[key]) do
-			processs(v)
+			process(v)
 		end
 	end
 end
@@ -198,7 +198,7 @@ function conversionUtil.convert_tileset_paths (set, path)
 
 	if set["image"] ~= nil then 
 
-		local new_path = imgPath:gsub("\\","/") .. util.get_filename(set["image"]) .. ".png"
+		local new_path = path:gsub("\\","/") .. util.get_filename(set["image"]) .. ".png"
 		set["image"] = new_path
 	end
 end

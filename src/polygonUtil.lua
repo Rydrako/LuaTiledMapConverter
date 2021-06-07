@@ -43,7 +43,7 @@ function polygonUtil.convert_polygons_to_tiles (set, key, objectTypes)
 
 		-- apply offset and convert coords to tiles
 		for _, v in pairs(points) do
-			print(v["x"] .. " , " .. v["y"])
+
 			v["x"] = (v["x"] - offset_x)/width
 			v["y"] = (v["y"] - offset_y)/height
 		end
@@ -70,7 +70,6 @@ function polygonUtil.convert_polygons_to_tiles (set, key, objectTypes)
 						})
 				end
 			end
-			print(str)
 		end
 
 		set[key] = nil

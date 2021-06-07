@@ -68,9 +68,9 @@ function ioUtil.export_file (file, file_data, default_name, file_extension)
 	elseif  string.match(file, ".lua") then 
 
 		local f = io.open(file, "w")
-		print(f)
+		print("file : " .. file)
 
-		ioUtil.write_table(f, file_data)
+		ioUtil.write_table(f, file_data, 0)
 	
 		f:close()
 		return true
@@ -86,8 +86,6 @@ end
 -- @param  	number	ident 	current ident, only used with recursive calls
 
 function ioUtil.write_table (file, _table, indent)
-
-	ident = ident and ident or 0
 
 	if indent == 0 then
 		file:write("return {\n")

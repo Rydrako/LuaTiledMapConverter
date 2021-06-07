@@ -74,7 +74,7 @@ abt_btn = iup.button{title="OK", expand="HORIZONTAL"}
 
 abt_box = iup.vbox{
 		iup.label{title="Lua-Tiled Map Converter", font="Helvetica, 16", alignment="acenter", expand="HORIZONTAL"},
-		iup.label{title="Version 0.0.1", font="Helvetica, 8", alignment="acenter", expand="HORIZONTAL"},
+		iup.label{title="Version " .. SOFTWARE_VERSION, font="Helvetica, 8", alignment="acenter", expand="HORIZONTAL"},
 		iup.label{title="Copyright © 2021 Rydrako", alignment="acenter", expand="HORIZONTAL"},
 		iup.label{title="You may modify and redistribute this program under the terms of the GPL \n(version 3 or later)\nRepo Link:", alignment="acenter", 
 			expand="HORIZONTAL"},
@@ -260,8 +260,7 @@ function export_lua (file)
 
 	return conversionTool.toLua(file, 
 											export_field.txt.value, 
-											tileset_field.txt.value, 
-											package_tgl.value=="ON")
+											tileset_field.txt.value)
 end
 
 -- Main Window layout

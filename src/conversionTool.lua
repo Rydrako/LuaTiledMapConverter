@@ -126,10 +126,8 @@ end
 -- @param 	string 	file 				path of the input json file
 -- @param 	string 	exportPath			path to create the lua file
 -- @param	string 	imgpath				path of tilesets
--- @param 	boolean usePackageAsPath 	if true, the file name is extended onto exportPath, peroids serving as slashes 
---										(e. g. a file named maps.world_1.level_1 will export to <export_path>/maps/world_1/level_1)
 
-function conversionTool.toLua (file, exportPath, imgPath, usePackageAsPath)
+function conversionTool.toLua (file, exportPath, imgPath)
 
 	data = ioUtil.load_file(file)
 
@@ -144,12 +142,6 @@ function conversionTool.toLua (file, exportPath, imgPath, usePackageAsPath)
 
 		print("Error occured: Could not load data from file! \n\n")
 		return false
-	end
-
-
-
-	if usePackageAsPath then
-		exportPath = exportPath .. "\\" .. string.gsub(util.get_filename(file), "%.", "\\")
 	end
 
 	--add "\" to imgPath if it does not end with one
