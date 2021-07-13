@@ -34,7 +34,7 @@ function ioUtil.load_file (file)
 end
 
 --- Creates a new file with given data to the specified file location. 
---- file name and extension will be added to path if needed.
+--- file name and extension will be added to path if needed. Returns if operation was successful or not.
 --
 -- @param 	string 	file 			path of directory or file to export to
 -- @param 	table 	file_data		contents to be written to new file
@@ -43,8 +43,7 @@ end
 
 function ioUtil.export_file (file, file_data, default_name, file_extension)
 
-	local is_json = string.match(file, "json")
-	local is_lua = string.match(file, ".lua")
+	local op_result = false
 
 	if not util.ends_with(file, file_extension) then
 
@@ -56,27 +55,28 @@ function ioUtil.export_file (file, file_data, default_name, file_extension)
 		end
 	end
 
-	if string.match(file, "json") then 
+	local f = io.open(file, "w")
 
-		print(file)
+	print(file .. "\n")
 
-		local f = io.open(file, "w")
+	if f ~= nil then
 
-		f:write(json:encode_pretty(file_data))
+		if string.match(file, "json") then 
+
+			f:write(json:encode_pretty(file_data))
+			op_result = true
+
+		elseif  string.match(file, ".lua") then 
+
+			ioUtil.write_table(f, file_data, 0)
+			op_result = true
+
+		end
+
 		f:close()
-		return true
-	elseif  string.match(file, ".lua") then 
-
-		local f = io.open(file, "w")
-		print("file : " .. file)
-
-		ioUtil.write_table(f, file_data, 0)
-	
-		f:close()
-		return true
-	else
-		return false
 	end
+
+	return op_result
 end
 
 --- Recursivly writes out the given table to the specified file

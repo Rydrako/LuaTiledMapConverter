@@ -5,7 +5,7 @@
 -- For a copy, see <https://opensource.org/licenses/GPL-3.0>.
 
 -- Main entry point of the program, runs the ui
-SOFTWARE_VERSION = "0.0.3"
+SOFTWARE_VERSION = "0.0.4"
 
 iup = require("iuplua")
 local ui = require("ui")

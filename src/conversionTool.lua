@@ -20,7 +20,7 @@ pixels_to_tiles = function (input, use_width)
 	return input / tonumber(use_width and data["tilewidth"] or data["tileheight"])
 end
 
---- Creates a json file for Tiled from the given lua file, returns true/false if the operation was successful or not
+--- Creates a json file for Tiled from the given lua file, returns if the operation was successful or not
 --
 -- @param 	string 	file 				path of the input lua file
 -- @param 	string 	exportPath			path to create the json file
@@ -105,23 +105,19 @@ function conversionTool.toTiled (file, exportPath, imgPath, margin, spacing, use
 		end)
 
 
-	if not ioUtil.export_file(exportPath, data, file_name, ".json") then 
+	if not ioUtil.export_file(exportPath, data, file_name, ".json") or 
+		not ioUtil.export_file(exportPath, data["tilesets"], file_name, "_tilesets.json")  then 
 
-		print("Error occured: Could not export JSON file! \n\n")
-		return false 
-	end
-	
-	if not ioUtil.export_file(exportPath, data["tilesets"], file_name, "_tilesets.json") then 
-
-		print("Error occured: Could not export JSON tileset! \n\n")
-		return false 
+		local err = "Error occured: Could not locate output directory or file."
+		print(err .. "\n\n")
+		return {success=false, message=err}
 	end
 
 	print("Conversion done!")
-	return true
+	return {success=true}
 end
 
---- Creates a lua file for Tiled from the given json file, returns true/false if the operation was successful or not
+--- Creates a lua file for Tiled from the given json file, returns if the operation was successful or not
 --
 -- @param 	string 	file 				path of the input json file
 -- @param 	string 	exportPath			path to create the lua file
@@ -212,12 +208,13 @@ function conversionTool.toLua (file, exportPath, imgPath)
 
 	if not ioUtil.export_file(exportPath, data, file_name, ".lua") then 
 
-		print("Error occured: Could not export LUA file! \n\n")
-		return false
+		local err = "Error occured: Could not locate output directory or file."
+		print(err .. "\n\n")
+		return {success=false, message=err}
 	end
 
 	print("Conversion done!")
-	return true
+	return {success=true}
 end
 
 return conversionTool
